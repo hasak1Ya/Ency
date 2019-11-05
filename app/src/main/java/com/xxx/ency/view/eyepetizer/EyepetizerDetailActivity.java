@@ -118,22 +118,32 @@ public class EyepetizerDetailActivity extends BaseActivity {
     private void initData() {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        videoBean = (VideoBean.ItemListBean.DataBeanX) bundle.get("data");
-        txtVideoTitle.setText(videoBean.getContent().getData().getTitle());
-        txtVideoSubtitle.setText(videoBean.getHeader().getDescription());
-        txtVideoContent.setText(videoBean.getContent().getData().getDescription());
-        txtVideoShare.setText(videoBean.getContent().getData().getConsumption().getShareCount() + "");
-        txtVideoReply.setText(videoBean.getContent().getData().getConsumption().getReplyCount() + "");
-        ImageLoader.loadAllNoPlaceHolder(mContext, videoBean.getContent().getData().getAuthor().getIcon(),imgVideoAuthor);
-        txtVideoAuthorName.setText(videoBean.getContent().getData().getAuthor().getName());
-        txtVideoAuthorDescription.setText(videoBean.getContent().getData().getAuthor().getDescription());
-        tagAdapter = new EyepetizerTagAdapter();
-        tagAdapter.setNewData(videoBean.getContent().getData().getTags().size() > 3
-                ? videoBean.getContent().getData().getTags().subList(0, 3) : videoBean.getContent().getData().getTags());
-        recyclerviewTag.setLayoutManager(new GridLayoutManager(mContext, 3));
-        recyclerviewTag.setAdapter(tagAdapter);
-        daoManager = EncyApplication.getAppComponent().getGreenDaoManager();
-        setLikeState(daoManager.queryByGuid(videoBean.getHeader().getId() + ""));
+        if (bundle != null) {
+            videoBean = (VideoBean.ItemListBean.DataBeanX) bundle.get("data");
+            if (videoBean != null) {
+                VideoBean.ItemListBean.DataBeanX.ContentBean content = videoBean.getContent();
+                if (content != null) {
+                    VideoBean.ItemListBean.DataBeanX.ContentBean.DataBean data = content.getData();
+                    if (data!=null){
+                        txtVideoTitle.setText(data.getTitle());
+                        txtVideoSubtitle.setText(videoBean.getHeader().getDescription());
+                        txtVideoContent.setText(data.getDescription());
+                        txtVideoShare.setText(data.getConsumption().getShareCount() + "");
+                        txtVideoReply.setText(data.getConsumption().getReplyCount() + "");
+                        ImageLoader.loadAllNoPlaceHolder(mContext, data.getAuthor().getIcon(), imgVideoAuthor);
+                        txtVideoAuthorName.setText(data.getAuthor().getName());
+                        txtVideoAuthorDescription.setText(data.getAuthor().getDescription());
+                        tagAdapter = new EyepetizerTagAdapter();
+                        tagAdapter.setNewData(data.getTags().size() > 3
+                                ? data.getTags().subList(0, 3) : data.getTags());
+                        recyclerviewTag.setLayoutManager(new GridLayoutManager(mContext, 3));
+                        recyclerviewTag.setAdapter(tagAdapter);
+                        daoManager = EncyApplication.getAppComponent().getGreenDaoManager();
+                        setLikeState(daoManager.queryByGuid(videoBean.getHeader().getId() + ""));
+                    }
+                }
+            }
+        }
     }
 
     private void initVideoPlayer() {
@@ -157,7 +167,7 @@ public class EyepetizerDetailActivity extends BaseActivity {
         videoPlayerStandard.setUp(objects, 0,
                 JZVideoPlayerStandard.SCREEN_WINDOW_NORMAL, videoBean.getContent().getData().getTitle());
         ImageLoader.loadAllNoPlaceHolder(mContext, videoBean.getContent().getData().getCover().getFeed()
-                ,videoPlayerStandard.thumbImageView);
+                , videoPlayerStandard.thumbImageView);
         JZVideoPlayer.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         JZVideoPlayer.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
     }
@@ -222,8 +232,8 @@ public class EyepetizerDetailActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         JZVideoPlayer.releaseAllVideos();
-//        Change these two variables back
-//        JZVideoPlayer.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
-//        JZVideoPlayer.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        //        Change these two variables back
+        //        JZVideoPlayer.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+        //        JZVideoPlayer.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
     }
 }
